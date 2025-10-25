@@ -2,71 +2,156 @@ export const DEFAULT_DELIMITER: string = '.';
 export const ESCAPE_CHARACTER = '\\';
 
 /**
- * A name is a sequence of string components separated by a delimiter character.
- * Special characters within the string may need masking, if they are to appear verbatim.
- * There are only two special characters, the delimiter character and the escape character.
- * The escape character can't be set, the delimiter character can.
- * 
- * Homogenous name examples
- * 
- * "oss.cs.fau.de" is a name with four name components and the delimiter character '.'.
- * "///" is a name with four empty components and the delimiter character '/'.
- * "Oh\.\.\." is a name with one component, if the delimiter character is '.'.
+ * Eine Name-Instanz besteht aus mehreren String-Komponenten,
+ * die durch ein Trennzeichen (Delimiter) getrennt sind.
+ * Intern werden die Komponenten mit Escape-Zeichen maskiert,
+ * falls sie Sonderzeichen enthalten.
  */
 export class Name {
 
     private delimiter: string = DEFAULT_DELIMITER;
     private components: string[] = [];
 
-    /** Expects that all Name components are properly masked */
+    /** @methodtype constructor
+     * Erwartet, dass alle Komponenten bereits korrekt für das verwendete Trennzeichen maskiert sind.
+     */
     constructor(other: string[], delimiter?: string) {
-        throw new Error("needs implementation or deletion");
+        if (delimiter !== undefined) {
+            Name.assertValidDelimiter(delimiter);
+            this.delimiter = delimiter;
+        }
+        this.components = [...other];
     }
 
-    /**
-     * Returns a human-readable representation of the Name instance using user-set control characters
-     * Control characters are not escaped (creating a human-readable string)
-     * Users can vary the delimiter character to be used
+    /** @methodtype query-method
+     * Gibt eine menschenlesbare Darstellung des Namens zurück.
+     * Steuerzeichen werden nicht escaped, das Trennzeichen kann angegeben werden.
      */
     public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
+        Name.assertValidDelimiter(delimiter);
+        const raw = this.components.map(c => Name.unescapeForDelimiter(c, this.delimiter));
+        return raw.join(delimiter);
     }
 
-    /** 
-     * Returns a machine-readable representation of Name instance using default control characters
-     * Machine-readable means that from a data string, a Name can be parsed back in
-     * The control characters in the data string are the default characters
+    /** @methodtype query-method
+     * Gibt eine maschinenlesbare Darstellung des Namens zurück.
+     * Diese nutzt immer das Standard-Trennzeichen '.' und das Escape-Zeichen '\\'.
      */
     public asDataString(): string {
-        throw new Error("needs implementation or deletion");
+        const raw = this.components.map(c => Name.unescapeForDelimiter(c, this.delimiter));
+        const escapedForDefault = raw.map(c => Name.escapeForDelimiter(c, DEFAULT_DELIMITER));
+        return escapedForDefault.join(DEFAULT_DELIMITER);
     }
 
+    /** @methodtype get-method
+     * Liefert die (maskierte) Komponente an Index i zurück.
+     */
     public getComponent(i: number): string {
-        throw new Error("needs implementation or deletion");
+        Name.assertIndex(i, this.components.length);
+        return this.components[i];
     }
 
-    /** Expects that new Name component c is properly masked */
+    /** @methodtype set-method
+     * Setzt die (maskierte) Komponente an Index i.
+     */
     public setComponent(i: number, c: string): void {
-        throw new Error("needs implementation or deletion");
+        Name.assertIndex(i, this.components.length);
+        this.components[i] = c;
     }
 
-     /** Returns number of components in Name instance */
-     public getNoComponents(): number {
-        throw new Error("needs implementation or deletion");
+    /** @methodtype query-method
+     * Gibt die Anzahl der Komponenten zurück.
+     */
+    public getNoComponents(): number {
+        return this.components.length;
     }
 
-    /** Expects that new Name component c is properly masked */
+    /** @methodtype command-method
+     * Fügt eine (maskierte) Komponente an Position i ein.
+     * Das Einfügen am Ende ist erlaubt.
+     */
     public insert(i: number, c: string): void {
-        throw new Error("needs implementation or deletion");
+        if (i < 0 || i > this.components.length) {
+            throw new RangeError(`Index out of bounds: ${i}`);
+        }
+        this.components.splice(i, 0, c);
     }
 
-    /** Expects that new Name component c is properly masked */
+    /** @methodtype command-method
+     * Hängt eine (maskierte) Komponente am Ende an.
+     */
     public append(c: string): void {
-        throw new Error("needs implementation or deletion");
+        this.components.push(c);
     }
 
+    /** @methodtype command-method
+     * Entfernt die Komponente an Index i.
+     */
     public remove(i: number): void {
-        throw new Error("needs implementation or deletion");
+        Name.assertIndex(i, this.components.length);
+        this.components.splice(i, 1);
     }
 
+    // ---------- Hilfsmethoden (private) ----------
+
+    /** @methodtype private-method
+     * Prüft, ob das angegebene Trennzeichen gültig ist.
+     */
+    private static assertValidDelimiter(d: string): void {
+        if (typeof d !== 'string' || d.length !== 1) {
+            throw new Error(`Delimiter must be a single character string. Got: "${d}"`);
+        }
+        if (d === ESCAPE_CHARACTER) {
+            throw new Error(`Delimiter cannot be the escape character "${ESCAPE_CHARACTER}".`);
+        }
+    }
+
+    /** @methodtype private-method
+     * Prüft, ob der Index innerhalb der gültigen Grenzen liegt.
+     */
+    private static assertIndex(i: number, len: number): void {
+        if (!Number.isInteger(i)) {
+            throw new TypeError(`Index must be an integer. Got: ${i}`);
+        }
+        if (i < 0 || i >= len) {
+            throw new RangeError(`Index out of bounds: ${i}`);
+        }
+    }
+
+    /** @methodtype private-method
+     * Maskiert das Escape- und das Trennzeichen innerhalb eines Strings.
+     */
+    private static escapeForDelimiter(raw: string, delimiter: string): string {
+        let out = '';
+        for (let k = 0; k < raw.length; k++) {
+            const ch = raw[k];
+            if (ch === ESCAPE_CHARACTER || ch === delimiter) {
+                out += ESCAPE_CHARACTER + ch;
+            } else {
+                out += ch;
+            }
+        }
+        return out;
+    }
+
+    /** @methodtype private-method
+     * Hebt die Maskierung für ein bestimmtes Trennzeichen auf.
+     */
+    private static unescapeForDelimiter(masked: string, delimiter: string): string {
+        let out = '';
+        for (let k = 0; k < masked.length; k++) {
+            const ch = masked[k];
+            if (ch === ESCAPE_CHARACTER) {
+                if (k + 1 < masked.length) {
+                    const next = masked[++k];
+                    out += next;
+                } else {
+                    out += ESCAPE_CHARACTER; // Letztes '\' bleibt bestehen
+                }
+            } else {
+                out += ch;
+            }
+        }
+        return out;
+    }
 }

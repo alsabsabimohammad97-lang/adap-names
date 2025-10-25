@@ -53,8 +53,8 @@ jobs:
 
       - name: Run tests for exercise B05
         run: npm run test:b05
-        if: ${{ !cancelled() && github.event.head_commit.timestamp >= '2024-11-25T12:00:00Z' }}
+        if: ${{ !cancelled() && github.event.head_commit.timestamp >= '2025-11-25T12:00:00Z' }}
 
       - name: Run tests for exercise B06
         run: npm run test:b06
-        if: ${{ !cancelled() && github.event.head_commit.timestamp >= '2024-12-02T12:00:00Z' }}
+        if: ${{ !cancelled() && github.event.head_commit.timestamp >= '2025-12-02T12:00:00Z' }}

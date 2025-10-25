@@ -7,13 +7,14 @@ export const ESCAPE_CHARACTER = '\\';
  * Intern werden die Komponenten mit Escape-Zeichen maskiert,
  * falls sie Sonderzeichen enthalten.
  */
-
 export class Name {
 
     private delimiter: string = DEFAULT_DELIMITER;
     private components: string[] = [];
 
-    /** @methodtype constructor
+    /**
+     * @methodtype constructor
+     * @methodprop regular
      * Erwartet, dass alle Komponenten bereits korrekt für das verwendete Trennzeichen maskiert sind.
      */
     constructor(other: string[], delimiter?: string) {
@@ -24,9 +25,10 @@ export class Name {
         this.components = [...other];
     }
 
-    /** @methodtype query-method
+    /**
+     * @methodtype query-method (conversion)
+     * @methodprop regular
      * Gibt eine menschenlesbare Darstellung des Namens zurück.
-     * Steuerzeichen werden nicht escaped, das Trennzeichen kann angegeben werden.
      */
     public asString(delimiter: string = this.delimiter): string {
         Name.assertValidDelimiter(delimiter);
@@ -34,9 +36,10 @@ export class Name {
         return raw.join(delimiter);
     }
 
-    /** @methodtype query-method
+    /**
+     * @methodtype query-method (conversion)
+     * @methodprop regular
      * Gibt eine maschinenlesbare Darstellung des Namens zurück.
-     * Diese nutzt immer das Standard-Trennzeichen '.' und das Escape-Zeichen '\\'.
      */
     public asDataString(): string {
         const raw = this.components.map(c => Name.unescapeForDelimiter(c, this.delimiter));
@@ -44,7 +47,9 @@ export class Name {
         return escapedForDefault.join(DEFAULT_DELIMITER);
     }
 
-    /** @methodtype get-method
+    /**
+     * @methodtype get-method (query)
+     * @methodprop primitive
      * Liefert die (maskierte) Komponente an Index i zurück.
      */
     public getComponent(i: number): string {
@@ -52,7 +57,9 @@ export class Name {
         return this.components[i];
     }
 
-    /** @methodtype set-method
+    /**
+     * @methodtype set-method (mutation)
+     * @methodprop primitive
      * Setzt die (maskierte) Komponente an Index i.
      */
     public setComponent(i: number, c: string): void {
@@ -60,16 +67,19 @@ export class Name {
         this.components[i] = c;
     }
 
-    /** @methodtype query-method
+    /**
+     * @methodtype query-method
+     * @methodprop primitive
      * Gibt die Anzahl der Komponenten zurück.
      */
     public getNoComponents(): number {
         return this.components.length;
     }
 
-    /** @methodtype command-method
+    /**
+     * @methodtype command-method (mutation)
+     * @methodprop regular
      * Fügt eine (maskierte) Komponente an Position i ein.
-     * Das Einfügen am Ende ist erlaubt.
      */
     public insert(i: number, c: string): void {
         if (i < 0 || i > this.components.length) {
@@ -78,14 +88,18 @@ export class Name {
         this.components.splice(i, 0, c);
     }
 
-    /** @methodtype command-method
+    /**
+     * @methodtype command-method (mutation)
+     * @methodprop regular
      * Hängt eine (maskierte) Komponente am Ende an.
      */
     public append(c: string): void {
         this.components.push(c);
     }
 
-    /** @methodtype command-method
+    /**
+     * @methodtype command-method (mutation)
+     * @methodprop regular
      * Entfernt die Komponente an Index i.
      */
     public remove(i: number): void {
@@ -93,9 +107,11 @@ export class Name {
         this.components.splice(i, 1);
     }
 
-    // ---------- Hilfsmethoden (private) ----------
+    // ---------- Hilfsmethoden ----------
 
-    /** @methodtype private-method
+    /**
+     * @methodtype helper-method (assertion)
+     * @methodprop primitive
      * Prüft, ob das angegebene Trennzeichen gültig ist.
      */
     private static assertValidDelimiter(d: string): void {
@@ -107,7 +123,9 @@ export class Name {
         }
     }
 
-    /** @methodtype private-method
+    /**
+     * @methodtype helper-method (assertion)
+     * @methodprop primitive
      * Prüft, ob der Index innerhalb der gültigen Grenzen liegt.
      */
     private static assertIndex(i: number, len: number): void {
@@ -119,7 +137,9 @@ export class Name {
         }
     }
 
-    /** @methodtype private-method
+    /**
+     * @methodtype helper-method (utility)
+     * @methodprop regular
      * Maskiert das Escape- und das Trennzeichen innerhalb eines Strings.
      */
     private static escapeForDelimiter(raw: string, delimiter: string): string {
@@ -135,7 +155,9 @@ export class Name {
         return out;
     }
 
-    /** @methodtype private-method
+    /**
+     * @methodtype helper-method (utility)
+     * @methodprop regular
      * Hebt die Maskierung für ein bestimmtes Trennzeichen auf.
      */
     private static unescapeForDelimiter(masked: string, delimiter: string): string {

@@ -7,6 +7,7 @@ export const ESCAPE_CHARACTER = '\\';
  * Intern werden die Komponenten mit Escape-Zeichen maskiert,
  * falls sie Sonderzeichen enthalten.
  */
+
 export class Name {
 
     private delimiter: string = DEFAULT_DELIMITER;

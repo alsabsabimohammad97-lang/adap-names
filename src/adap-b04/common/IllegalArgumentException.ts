@@ -10,7 +10,11 @@ export class IllegalArgumentException extends Exception {
     public static assert(c: boolean, m: string = "illegal argument", t?: Exception): void {
         if (!c) throw new IllegalArgumentException(m, t);
     }
-    
+
+    static assertIsNotNullOrUndefined(o: Object | null, m: string = "null or undefined", t?: Exception): void {
+       this.assert(!this.isNullOrUndefined(o), m);
+    }
+
     constructor(m: string, t?: Exception) {
         super(m, t);
     }

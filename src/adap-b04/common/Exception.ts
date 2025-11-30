@@ -19,9 +19,22 @@ export abstract class Exception extends Error {
         return this.trigger != null;
     }
 
+    static isNullOrUndefined(o: Object | null) {
+        return (o == undefined) || (o == null);
+    }
+
     public getTrigger(): Exception {
-        // @todo check if trigger is null
+        this.assertHasTrigger();
         return this.trigger as Exception;
     }
 
+    protected assertHasTrigger(): void {
+        if (!this.hasTrigger()) {
+            throw new (class extends Exception {
+                constructor(t: Exception) {
+                    super("exception had no trigger", t);
+                }
+            })(this);
+        }
+    }
 }

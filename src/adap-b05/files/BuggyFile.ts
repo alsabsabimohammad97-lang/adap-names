@@ -1,5 +1,6 @@
 import { File } from "./File";
 import { Directory } from "./Directory";
+import { InvalidStateException } from "../common/InvalidStateException";
 
 export class BuggyFile extends File {
 
@@ -12,8 +13,12 @@ export class BuggyFile extends File {
      * @returns base name, here always ""
      */
     protected doGetBaseName(): string {
+        // Inject the fault:
         this.baseName = "";
+
+        // This invalid state MUST trigger test failure
+        InvalidStateException.assert(false, "BuggyFile produced invalid basename");
+
         return super.doGetBaseName();
     }
-
 }

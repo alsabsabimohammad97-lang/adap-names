@@ -2,7 +2,8 @@ import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { InvalidStateException } from "../common/InvalidStateException";
 
 import { Name } from "../names/Name";
-import { Directory } from "./Directory";
+
+import type { Directory } from "./Directory";
 
 export class Node {
 
@@ -11,7 +12,7 @@ export class Node {
 
     constructor(bn: string, pn: Directory) {
         this.doSetBaseName(bn);
-        this.parentNode = pn; // why oh why do I have to set this
+        this.parentNode = pn;
         this.initialize(pn);
     }
 
@@ -57,7 +58,22 @@ export class Node {
      * @param bn basename of node being searched for
      */
     public findNodes(bn: string): Set<Node> {
-        throw new Error("needs implementation or deletion");
-    }
+        const result = new Set<Node>();
 
+        // check this node
+        if (this.getBaseName() === bn) {
+            result.add(this);
+        }
+
+        // check children only if Directory
+        const self: any = this;
+        if (self.childNodes instanceof Set) {
+            for (const child of self.childNodes) {
+                const found = child.findNodes(bn);
+                for (const m of found) result.add(m);
+            }
+        }
+
+        return result;
+    }
 }

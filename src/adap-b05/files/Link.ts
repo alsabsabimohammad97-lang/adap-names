@@ -32,7 +32,9 @@ export class Link extends Node {
     }
 
     protected ensureTargetNode(target: Node | null): Node {
-        const result: Node = this.targetNode as Node;
-        return result;
+        if (target === null) {
+            throw new Error("Link has no target");
+        }
+        return target;
     }
 }

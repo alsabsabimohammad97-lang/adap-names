@@ -19,6 +19,7 @@ export interface Name extends Cloneable, Printable, Equality {
     /**
      * Returns true, if number of components == 0; else false
      */
+    clone(): Name;
     isEmpty(): boolean;
 
     /** 

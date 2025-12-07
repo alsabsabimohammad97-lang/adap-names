@@ -11,10 +11,12 @@ export class RootNode extends Directory {
     }
 
     constructor() {
-        super("", new Object as Directory);
+        // Pass a temporary dummy Directory, but fix parent later
+        super("", {} as Directory);
     }
 
     protected initialize(pn: Directory): void {
+        // root has no parent → parent = itself
         this.parentNode = this;
     }
 
